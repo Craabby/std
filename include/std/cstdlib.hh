@@ -1,7 +1,9 @@
 #pragma once
 
 #include <std/cstddef.hh>
-#include <x86intrin.h>
+#ifdef STD2_SIMD
+    #include <x86intrin.h>
+#endif
 
 namespace std2::memory
 {   
