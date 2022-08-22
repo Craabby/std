@@ -1,7 +1,7 @@
 #pragma once
 
 #include <std/cstddef.hh>
-#include <std/cstdlib.hh>
+#include <std/memory.hh>
 #include <std/cassert.hh>
 #include <std/move.hh>
 
@@ -31,6 +31,23 @@ namespace std2
         }
 
     public:
+        inline Vector() = default;
+        inline Vector(Vector const &other)
+        {
+            SetCapacity(other.m_Capacity);
+            for (size_t i = 0; i < other.m_Size; i++)
+                m_Data[i] = (other.m_Data[i]);
+        };
+        inline Vector(Vector &&other)
+        {
+            m_Capacity = other.m_Capacity;
+            m_Data = other.m_Data;
+            m_Size = other.m_Size;
+            other.m_Data = nullptr;
+            other.m_Capacity = 0;
+            other.m_Size = 0;
+        };
+
         class Iterator
         {
             size_t m_Index;
@@ -48,7 +65,7 @@ namespace std2
             inline bool operator!=(Iterator other) const { return m_Index != other.m_Index; }
             inline bool operator==(Iterator other) const { return m_Index == other.m_Index; }
             inline T &operator*() { return m_Data[m_Index]; }
-            inline const T &operator*() const { return m_Data[m_Index]; }
+            inline T const &operator*() const { return m_Data[m_Index]; }
             inline Iterator &operator++()
             {
                 m_Index++;
@@ -63,9 +80,6 @@ namespace std2
             }
         };
 
-        inline Vector() = default;
-        Vector(const Vector &) = delete;
-        Vector(Vector &&) = delete;
         inline Vector(size_t size, const T &value = T{})
         {
             m_Data = (T *)::operator new(size * sizeof(T));
@@ -87,7 +101,7 @@ namespace std2
 #ifdef STD2_VECTOR_SAFE
             Assert(size > m_Capacity)
 #endif
-            SetCapacity(size);
+                SetCapacity(size);
         }
 
         inline Iterator begin()
@@ -100,7 +114,7 @@ namespace std2
             return Iterator{m_Data, m_Size};
         }
 
-        inline const T &Push(const T &value)
+        inline T const &Push(T const &value)
         {
             if (m_Size == m_Capacity)
                 Grow();
@@ -130,6 +144,11 @@ namespace std2
             return m_Data[m_Size - 1];
         }
 
+        inline void ShrinkToOptimalCapacity()
+        {
+            SetCapacity(m_Size);
+        }
+
         inline T &At(size_t i)
         {
 #ifdef STD2_VECTOR_SAFE
@@ -138,7 +157,7 @@ namespace std2
             return m_Data[i];
         }
 
-        inline const T &At(size_t i) const
+        inline T const &At(size_t i) const
         {
 #ifdef STD2_VECTOR_SAFE
             Assert(i < m_Size);
@@ -155,7 +174,7 @@ namespace std2
             m_Size--;
             m_Data[index].~T();
             if constexpr (fast)
-                memory::Move(m_Data + index, &m_Data[m_Size], sizeof(T));
+                new (m_Data + index - 1) T(Move(m_Data[m_Size]));
             else
                 for (size_t i = index; i < m_Size; i++)
                     m_Data[i - 1] = Move(m_Data[i]);
@@ -166,7 +185,7 @@ namespace std2
             return At(i);
         }
 
-        inline const T &operator[](size_t i) const
+        inline T const &operator[](size_t i) const
         {
             return At(i);
         }
@@ -186,7 +205,7 @@ namespace std2
             return m_Data;
         }
 
-        inline const T *Data() const
+        inline T const *Data() const
         {
             return m_Data;
         }

@@ -4,9 +4,6 @@
 #include <std/move.hh>
 #include <std/type_traits.hh>
 
-// #include <optional>
-// std::optional<int> a;
-
 namespace std2
 {
     template <typename T>
@@ -25,7 +22,7 @@ namespace std2
         {
             m_HasValue = false;
         }
-        inline Optional(const Optional &other)
+        inline Optional(Optional const &other)
         {
             m_HasValue = other.m_HasValue;
             if (other.m_HasValue)
@@ -42,7 +39,7 @@ namespace std2
             if (m_HasValue)
                 m_Value.~T();
         }
-        inline Optional(const T &value)
+        inline Optional(T const &value)
             : m_HasValue(true),
               m_Value(value)
         {
@@ -80,7 +77,7 @@ namespace std2
             return m_Value;
         }
 
-        inline const T &Value() const
+        inline T const &Value() const
         {
 #ifdef STD2_OPTIONAL_SAFE
             Assert(m_HasValue);
@@ -107,11 +104,11 @@ namespace std2
             m_Value.~T();
         }
 
-        inline T &operator=(const T &x) { return Set(x); }
+        inline T &operator=(T const &x) { return Set(x); }
         inline T &operator=(T &&x) { return Set(x); }
         inline T &operator*() { return Value(); }
-        inline const T &operator*() const { return Value(); }
+        inline T const &operator*() const { return Value(); }
         inline operator T &() { return Value(); }
-        inline operator const T &() const { return Value(); }
+        inline operator T const &() const { return Value(); }
     };
 }
