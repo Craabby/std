@@ -27,7 +27,7 @@ namespace std2
         inline BasicString(CharType const *bytes, size_t size)
         {
             for (size_t i = 0; i < size; i++)
-                Push(bytes[i]);
+                this->Push(bytes[i]);
         }
         inline BasicString(Base const &bytes) : Base(bytes)
         {
@@ -90,8 +90,6 @@ namespace std2
         inline void operator+=(Type &other) { Append(other); }
         inline Type operator+(Type const &other) { return Plus(other); }
         inline Type operator+(Type &other) { Plus(other); }
-        inline CharType &operator[](size_t index) { return this->At(index); }
-        inline CharType const &operator[](size_t index) const { return this->At(index); }
         inline operator Base &() { return Bytes(); }
         inline operator Base const &() const { return Bytes(); }
         inline operator CharType const *() const { return Bytes().Data(); }

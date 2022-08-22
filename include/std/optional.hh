@@ -30,6 +30,7 @@ namespace std2
         }
         inline Optional(Optional &&other)
         {
+            m_HasValue = other.m_HasValue;
             if (other.m_HasValue)
                 m_Value = other.m_Value;
             other.m_HasValue = false;
@@ -107,6 +108,8 @@ namespace std2
         inline T &operator=(T const &x) { return Set(x); }
         inline T &operator=(T &&x) { return Set(x); }
         inline T &operator*() { return Value(); }
+        inline T *operator->() { return &Value(); }
+        inline T const *operator->() const { return &Value(); }
         inline T const &operator*() const { return Value(); }
         inline operator T &() { return Value(); }
         inline operator T const &() const { return Value(); }
