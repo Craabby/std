@@ -25,7 +25,7 @@ namespace std2
             T *newData = (T *)::operator new(size * sizeof(T));
             for (size_t i = 0; i < m_Size; i++)
                 newData[i] = Move(m_Data[i]);
-            ::operator delete(m_Data, m_Capacity * sizeof(T));
+            delete m_Data;
             m_Data = newData;
             m_Capacity = size;
         }
@@ -60,7 +60,7 @@ namespace std2
             // cannot use delete[] because m_Data was not allocated using new[]
             for (size_t i = 0; i < m_Size; i++)
                 m_Data[i].~T();
-            ::operator delete(m_Data, m_Capacity * sizeof(T));
+            delete m_Data;
         }
         inline Vector<T> operator=(Vector<T> &&other)
         {
@@ -85,6 +85,7 @@ namespace std2
             {
             }
 
+            inline size_t Index() const { return m_Index; }
             inline bool operator<(Iterator other) const { return m_Index < other.m_Index; }
             inline bool operator>(Iterator other) const { return m_Index > other.m_Index; }
             inline bool operator!=(Iterator other) const { return m_Index != other.m_Index; }
@@ -111,6 +112,14 @@ namespace std2
             Assert(size > m_Capacity)
 #endif
                 SetCapacity(size);
+        }
+
+        inline void Resize(size_t size, const T &v = T())
+        {
+            Reserve(size);
+            m_Size = size;
+            for (size_t i = 0; i < size; i++)
+                m_Data[i] = v;
         }
 
         inline Iterator begin()

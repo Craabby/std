@@ -120,5 +120,6 @@ namespace std2
         inline T const &operator*() const { return Value(); }
         inline operator T &() { return Value(); }
         inline operator T const &() const { return Value(); }
+        inline operator bool() const { return HasValue(); }
     };
 }

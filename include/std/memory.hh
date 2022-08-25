@@ -18,7 +18,7 @@ namespace std2
         T &operator=(SmartPointer const &) = delete;
         SmartPointer(SmartPointer &&) = delete;
         T &operator=(SmartPointer &&) = delete;
-        explicit UniquePointer(T *x)
+        explicit SmartPointer(T *x)
         {
             m_Data = x;
         }
