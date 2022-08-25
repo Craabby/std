@@ -52,14 +52,8 @@ namespace std2
             for (size_t i = 0; i < other.Size(); i++)
                 Append(other[i]);
         }
-        inline void Append(Type &other)
-        {
-            this->Reserve(this->Size() + other.Size());
-            for (CharType character : other.Bytes())
-                Append(character);
-        }
 
-        inline Type Plus(Type const &other)
+        inline Type Plus(Type const &other) const
         {
             Type newString;
             newString.Reserve(this->Size() + other.Size());
@@ -70,30 +64,16 @@ namespace std2
 
             return newString;
         }
-        inline Type Plus(Type &other)
-        {
 
-            Type newString;
-            newString.Reserve(this->Size() + other.Size());
-            for (CharType character : *this)
-                newString.Push(character);
-            for (CharType character : other)
-                newString.Push(character);
-
-            return newString;
-        }
-
+        inline CharType *AsCString() { return Bytes(); }
+        inline CharType const *AsCString() const { return Bytes(); }
         inline Base const &Bytes() const { return *static_cast<Base const *>(this); }
         inline Base &Bytes() { return *static_cast<Base *>(this); }
         inline void operator+=(CharType character) { Append(character); }
         inline void operator+=(Type const &other) { Append(other); }
-        inline void operator+=(Type &other) { Append(other); }
-        inline Type operator+(Type const &other) { return Plus(other); }
-        inline Type operator+(Type &other) { Plus(other); }
+        inline Type operator+(Type const &other) const { return Plus(other); }
         inline operator Base &() { return Bytes(); }
         inline operator Base const &() const { return Bytes(); }
-        inline operator CharType const *() const { return Bytes().Data(); }
-        inline operator CharType *() { return Bytes().Data(); }
     };
 
     using String = BasicString<char>;

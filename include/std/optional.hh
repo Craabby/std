@@ -22,34 +22,41 @@ namespace std2
         {
             m_HasValue = false;
         }
-        inline Optional(Optional const &other)
+        inline Optional(Optional<T> const &other)
         {
             m_HasValue = other.m_HasValue;
             if (other.m_HasValue)
                 m_Value = other.m_Value;
         }
-        inline Optional(Optional &&other)
+        inline Optional(Optional<T> &&other)
         {
             m_HasValue = other.m_HasValue;
             if (other.m_HasValue)
-                m_Value = other.m_Value;
+                m_Value = Move(other.m_Value);
             other.m_HasValue = false;
-        }
-        inline ~Optional()
-        {
-            if (m_HasValue)
-                m_Value.~T();
         }
         inline Optional(T const &value)
             : m_HasValue(true),
               m_Value(value)
         {
         }
-
         inline Optional(T &&value)
             : m_HasValue(true),
-              m_Value(value)
+              m_Value(Move(value))
         {
+        }
+        inline ~Optional()
+        {
+            if (m_HasValue)
+                m_Value.~T();
+        }
+        inline Optional<T> &operator=(Optional<T> const &other)
+        {
+            m_HasValue = other.m_HasValue;
+            if (other.m_HasValue)
+                m_Value = other.m_Value;
+
+            return *this;
         }
 
         inline bool HasValue() const

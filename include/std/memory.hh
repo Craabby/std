@@ -1,9 +1,40 @@
 #pragma once
 
 #include <std/cstddef.hh>
+#include <std/move.hh>
 #ifdef STD2_SIMD
 #include <x86intrin.h>
 #endif
+
+namespace std2
+{
+    template <typename T>
+    class SmartPointer
+    {
+        T *m_Data;
+
+    public:
+        SmartPointer(SmartPointer const &) = delete;
+        T &operator=(SmartPointer const &) = delete;
+        SmartPointer(SmartPointer &&) = delete;
+        T &operator=(SmartPointer &&) = delete;
+        explicit UniquePointer(T *x)
+        {
+            m_Data = x;
+        }
+        ~SmartPointer()
+        {
+            delete m_Data;
+        }
+
+        T Get() { return m_Data; }
+        T const &Get() const { return *Get(); }
+        T &operator*() { return *Get(); }
+        T const &operator*() const { return *Get(); }
+        T *operator->() { return Get(); }
+        T const *operator->() const { return Get(); }
+    };
+}
 
 namespace std2::memory
 {

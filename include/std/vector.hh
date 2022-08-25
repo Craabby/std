@@ -47,6 +47,31 @@ namespace std2
             other.m_Capacity = 0;
             other.m_Size = 0;
         };
+        inline Vector(size_t size, T const &value = T{})
+        {
+            m_Data = (T *)::operator new(size * sizeof(T));
+            m_Capacity = size;
+            m_Size = size;
+            for (size_t i = 0; i < m_Size; i++)
+                m_Data[i] = value;
+        }
+        inline ~Vector()
+        {
+            // cannot use delete[] because m_Data was not allocated using new[]
+            for (size_t i = 0; i < m_Size; i++)
+                m_Data[i].~T();
+            ::operator delete(m_Data, m_Capacity * sizeof(T));
+        }
+        inline Vector<T> operator=(Vector<T> &&other)
+        {
+            m_Capacity = other.m_Capacity;
+            m_Data = other.m_Data;
+            m_Size = other.m_Size;
+            other.m_Data = nullptr;
+            other.m_Capacity = 0;
+            other.m_Size = 0;
+            return *this;
+        }
 
         class Iterator
         {
@@ -79,22 +104,6 @@ namespace std2
                 return i;
             }
         };
-
-        inline Vector(size_t size, const T &value = T{})
-        {
-            m_Data = (T *)::operator new(size * sizeof(T));
-            m_Capacity = size;
-            m_Size = size;
-            for (size_t i = 0; i < m_Size; i++)
-                m_Data[i] = value;
-        }
-        inline ~Vector()
-        {
-            // cannot use delete[] because m_Data was not allocated using new[]
-            for (size_t i = 0; i < m_Size; i++)
-                m_Data[i].~T();
-            ::operator delete(m_Data, m_Capacity * sizeof(T));
-        }
 
         inline void Reserve(size_t size)
         {
