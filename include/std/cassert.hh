@@ -5,6 +5,6 @@
         void(0);                                                                                               \
     else                                                                                                       \
     {                                                                                                          \
-        std::cerr << "assertion failed: `" << #expression << "` " << __FILE__ << ":" << __LINE__ << std::endl; \
-        exit(1);                                                                                               \
+        std::cerr << "assertion failed: `" << #expression << "` " << __FILE__ << ':' << __LINE__ << std::endl; \
+        abort();                                                                                               \
     }

@@ -25,29 +25,25 @@ namespace std2
             T *newData = (T *)::operator new(size * sizeof(T));
             for (size_t i = 0; i < m_Size; i++)
                 newData[i] = Move(m_Data[i]);
-            delete m_Data;
+            ::operator delete(m_Data, m_Capacity * sizeof(T));
             m_Data = newData;
             m_Capacity = size;
         }
 
     public:
+        using Iterator = T *;
+        using ConstIterator = T const *;
+
         inline Vector() = default;
         inline Vector(Vector const &other)
         {
-            SetCapacity(other.m_Capacity);
-            for (size_t i = 0; i < other.m_Size; i++)
-                m_Data[i] = (other.m_Data[i]);
-        };
+            *this = other;
+        }
         inline Vector(Vector &&other)
         {
-            m_Capacity = other.m_Capacity;
-            m_Data = other.m_Data;
-            m_Size = other.m_Size;
-            other.m_Data = nullptr;
-            other.m_Capacity = 0;
-            other.m_Size = 0;
-        };
-        inline Vector(size_t size, T const &value = T{})
+            *this = Move(other);
+        }
+        inline Vector(size_t size, T const &value = T())
         {
             m_Data = (T *)::operator new(size * sizeof(T));
             m_Capacity = size;
@@ -60,9 +56,9 @@ namespace std2
             // cannot use delete[] because m_Data was not allocated using new[]
             for (size_t i = 0; i < m_Size; i++)
                 m_Data[i].~T();
-            delete m_Data;
+            ::operator delete(m_Data, m_Capacity * sizeof(T));
         }
-        inline Vector<T> operator=(Vector<T> &&other)
+        inline Vector<T> &operator=(Vector<T> &&other)
         {
             m_Capacity = other.m_Capacity;
             m_Data = other.m_Data;
@@ -73,38 +69,20 @@ namespace std2
             return *this;
         }
 
-        class Iterator
+        inline Vector<T> &operator=(Vector<T> const &other)
         {
-            size_t m_Index;
-            T *m_Data;
+            SetCapacity(other.m_Capacity);
+            for (size_t i = 0; i < other.m_Size; i++)
+                m_Data[i] = (other.m_Data[i]);
+            return *this;
+        }
 
-        public:
-            inline Iterator(T *data, size_t index)
-                : m_Data(data),
-                  m_Index(index)
-            {
-            }
-
-            inline size_t Index() const { return m_Index; }
-            inline bool operator<(Iterator other) const { return m_Index < other.m_Index; }
-            inline bool operator>(Iterator other) const { return m_Index > other.m_Index; }
-            inline bool operator!=(Iterator other) const { return m_Index != other.m_Index; }
-            inline bool operator==(Iterator other) const { return m_Index == other.m_Index; }
-            inline T &operator*() { return m_Data[m_Index]; }
-            inline T const &operator*() const { return m_Data[m_Index]; }
-            inline Iterator &operator++()
-            {
-                m_Index++;
-                return *this;
-            }
-
-            inline Iterator operator++(int)
-            {
-                Iterator i{m_Data, m_Index};
-                m_Index++;
-                return i;
-            }
-        };
+        inline void Clear()
+        {
+            for (size_t i = 0; i < m_Size; i++)
+                m_Data[i].~T();
+            m_Size = 0;
+        }
 
         inline void Reserve(size_t size)
         {
@@ -114,7 +92,7 @@ namespace std2
                 SetCapacity(size);
         }
 
-        inline void Resize(size_t size, const T &v = T())
+        inline void Resize(size_t size, T const &v = T())
         {
             Reserve(size);
             m_Size = size;
@@ -122,15 +100,27 @@ namespace std2
                 m_Data[i] = v;
         }
 
-        inline Iterator begin()
-        {
-            return Iterator{m_Data, 0};
-        }
+        inline Iterator begin() { return m_Data; }
+        inline Iterator end() { return m_Data + m_Size; }
+        inline ConstIterator cbegin() const { return m_Data; }
+        inline ConstIterator cend() const { return m_Data + m_Size; }
 
-        inline Iterator end()
+        inline T &Front()
         {
-            return Iterator{m_Data, m_Size};
+#ifdef STD2_VECTOR_SAFE
+            Assert(m_Size);
+#endif
+            return *m_Data;
         }
+        inline T const &Front() const
+        {
+#ifdef STD2_VECTOR_SAFE
+            Assert(m_Size);
+#endif
+            return *m_Data;
+        }
+        inline T &Back() { return m_Data[m_Size - 1]; }
+        inline T const &Back() const { return m_Data[m_Size - 1]; }
 
         inline T const &Push(T const &value)
         {

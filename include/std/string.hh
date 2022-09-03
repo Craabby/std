@@ -9,6 +9,7 @@ namespace std2
     class BasicString : public Vector<CharType>
     {
     public:
+        using Char = CharType;
         using Base = Vector<CharType>;
         using Type = BasicString<CharType>;
 
@@ -65,8 +66,8 @@ namespace std2
             return newString;
         }
 
-        inline CharType *AsCString() { return Bytes(); }
-        inline CharType const *AsCString() const { return Bytes(); }
+        inline CharType *AsCString() { return Bytes().Data(); }
+        inline CharType const *AsCString() const { return Bytes().Data(); }
         inline Base const &Bytes() const { return *static_cast<Base const *>(this); }
         inline Base &Bytes() { return *static_cast<Base *>(this); }
         inline void operator+=(CharType character) { Append(character); }
