@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std/cstdint.hh>
+#include <cstdint>
 #include <std/vector.hh>
 
 namespace std2
@@ -16,13 +16,11 @@ namespace std2
         inline BasicString() = default;
         inline BasicString(CharType const *bytes)
         {
-            size_t i = 0;
-            while (true)
+            for (size_t i = 0; bytes[i] != 0; i++)
             {
                 if (bytes[i] == 0)
                     break;
                 this->Push(bytes[i]);
-                i++;
             }
         }
         inline BasicString(CharType const *bytes, size_t size)

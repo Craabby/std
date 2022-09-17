@@ -31,8 +31,8 @@ namespace std2
         }
 
     public:
-        using Iterator = T *;
-        using ConstIterator = T const *;
+        using iterator = T *;
+        using const_iterator = T const *;
 
         inline Vector() = default;
         inline Vector(Vector const &other)
@@ -44,7 +44,7 @@ namespace std2
             *this = Move(other);
         }
         // clone if it is number, otherwise const & it
-        inline Vector(size_t size, typename Conditional<IsNumber<T>::value, T, T const &>::type value = T())
+        inline Vector(size_t size, typename Conditional<is_number_v<T>, T, T const &>::type value = T())
         {
             m_Data = (T *)::operator new(size * sizeof(T));
             m_Capacity = size;
@@ -52,15 +52,19 @@ namespace std2
             for (size_t i = 0; i < m_Size; i++)
                 m_Data[i] = value;
         }
+
         inline ~Vector()
         {
-            // cannot use delete[] because m_Data was not allocated using new[]
+            // should not use delete[] because m_Data was not allocated using new[]
             for (size_t i = 0; i < m_Size; i++)
                 m_Data[i].~T();
             ::operator delete(m_Data, m_Capacity * sizeof(T));
         }
         inline Vector<T> &operator=(Vector<T> &&other)
         {
+#ifdef STD2_VECTOR_SAFE
+            Assert(this != &other);
+#endif
             m_Capacity = other.m_Capacity;
             m_Data = other.m_Data;
             m_Size = other.m_Size;
@@ -72,6 +76,9 @@ namespace std2
 
         inline Vector<T> &operator=(Vector<T> const &other)
         {
+#ifdef STD2_VECTOR_SAFE
+            Assert(this != &other);
+#endif
             SetCapacity(other.m_Capacity);
             for (size_t i = 0; i < other.m_Size; i++)
                 m_Data[i] = (other.m_Data[i]);
@@ -93,7 +100,7 @@ namespace std2
                 SetCapacity(size);
         }
 
-        inline void Resize(size_t size, typename Conditional<IsNumber<T>::value, T, T const &>::type v = T())
+        inline void Resize(size_t size, typename Conditional<is_number_v<T>, T, T const &>::type v = T())
         {
             Reserve(size);
             m_Size = size;
@@ -101,10 +108,10 @@ namespace std2
                 m_Data[i] = v;
         }
 
-        inline Iterator begin() { return m_Data; }
-        inline Iterator end() { return m_Data + m_Size; }
-        inline ConstIterator cbegin() const { return m_Data; }
-        inline ConstIterator cend() const { return m_Data + m_Size; }
+        inline iterator begin() { return m_Data; }
+        inline iterator end() { return m_Data + m_Size; }
+        inline const_iterator cbegin() const { return m_Data; }
+        inline const_iterator cend() const { return m_Data + m_Size; }
 
         inline T &Front()
         {
@@ -123,18 +130,19 @@ namespace std2
         inline T &Back() { return m_Data[m_Size - 1]; }
         inline T const &Back() const { return m_Data[m_Size - 1]; }
 
-        inline T const &Push(typename Conditional<IsNumber<T>::value, T, T const &>::type value)
+        inline T &Push(typename Conditional<is_number_v<T>, T, T const &>::type value)
         {
             if (m_Size == m_Capacity)
                 Grow();
             m_Data[m_Size] = value;
             m_Size++;
 
-            return value;
+            return Back();
         }
 
-        inline T const &Push(T &&x)
+        inline T &Push(T &&x)
         {
+            // call move constructor
             Emplace(Move(x));
         }
 

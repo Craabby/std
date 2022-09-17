@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 
 namespace std2
 {
@@ -281,6 +282,8 @@ namespace std2
     inline constexpr bool is_array_v = IsArray<T>::value;
     template <typename T>
     inline constexpr bool is_pointer_v = IsPointer<T>::value;
+    template <typename T>
+    inline constexpr bool is_number_v = IsNumber<T>::value;
     template <typename T>
     inline constexpr bool is_reference_v = IsReference<T>::value;
     template <typename T>
