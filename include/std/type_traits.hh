@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace std2
 {
     template <typename T, T x>
@@ -136,6 +138,149 @@ namespace std2
         using type = typename RemoveConst<typename RemoveVolatile<T>::type>::type;
     };
 
+    template <typename T>
+    struct IsIntegerHelper : FalseType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<bool> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<char> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<signed char> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<unsigned char> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<wchar_t> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<short> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<unsigned short> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<int> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<unsigned int> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<long> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<unsigned long> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<long long> : TrueType
+    {
+    };
+
+    template <>
+    struct IsIntegerHelper<unsigned long long> : TrueType
+    {
+    };
+
+    template <typename T>
+    struct IsInteger : IsIntegerHelper<typename RemoveCV<T>::type>
+    {
+    };
+
+    template <typename T>
+    struct IsFloatingPointHelper : FalseType
+    {
+    };
+
+    template <>
+    struct IsFloatingPointHelper<float> : TrueType
+    {
+    };
+
+    template <>
+    struct IsFloatingPointHelper<double> : TrueType
+    {
+    };
+
+    template <>
+    struct IsFloatingPointHelper<long double> : TrueType
+    {
+    };
+
+    template <typename T>
+    struct IsFloatingPoint : IsFloatingPointHelper<typename RemoveCV<T>::type>
+    {
+    };
+
+    template <typename>
+    struct IsArray : FalseType
+    {
+    };
+
+    template <typename T>
+    struct IsArray<T[]> : TrueType
+    {
+    };
+
+    template <typename T, size_t x>
+    struct IsArray<T[x]> : TrueType
+    {
+    };
+
+    template <typename>
+    struct IsPointerHelper : FalseType
+    {
+    };
+
+    template <typename T>
+    struct IsPointerHelper<T *> : TrueType
+    {
+    };
+
+    template <typename T>
+    struct IsPointer : IsPointerHelper<typename RemoveCV<T>::type>
+    {
+    };
+
+    template <typename T>
+    struct IsNumber : Or<IsFloatingPoint<T>, IsInteger<T>>
+    {
+    };
+
+    template <typename T>
+    inline constexpr bool is_integer_v = IsInteger<T>::value;
+    template <typename T>
+    inline constexpr bool is_floating_point_v = IsFloatingPoint<T>::value;
+    template <typename T>
+    inline constexpr bool is_array_v = IsArray<T>::value;
+    template <typename T>
+    inline constexpr bool is_pointer_v = IsPointer<T>::value;
     template <typename T>
     inline constexpr bool is_reference_v = IsReference<T>::value;
     template <typename T>

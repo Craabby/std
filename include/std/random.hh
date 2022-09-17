@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std/cstdint.hh>
+#include <cstdint>
 #include <std/type_traits.hh>
 
 namespace std2
@@ -41,7 +41,7 @@ namespace std2
     template <typename T>
     struct LinearCongruentialGenerator;
     template <>
-    struct LinearCongruentialGenerator<uint64_t> : _LinearCongruentialGenerator<uint64_t, 4096437239, 3152234867, 4039735907, 18446744073709551557>
+    struct LinearCongruentialGenerator<uint64_t> : _LinearCongruentialGenerator<uint64_t, 4096437239ull, 3152234867ull, 4039735907ull, 18446744073709551557ull>
     {
     };
     template <>
@@ -60,9 +60,9 @@ namespace std2
     struct LinearCongruentialGenerator<float> : LinearCongruentialGenerator<uint32_t>
     {
         using Base = LinearCongruentialGenerator<uint32_t>;
-        constexpr bool Next() { return ((float)Base::Next()) / 2147483647; }
-        constexpr bool operator()() { return ((float)Base::operator()()) / 2147483647; }
-        constexpr operator float() { return ((float)Base::operator uint32_t()) / 2147483647; }
+        constexpr bool Next() { return ((float)Base::Next()) / 2147483647.0f; }
+        constexpr bool operator()() { return ((float)Base::operator()()) / 2147483647.0f; }
+        constexpr operator float() { return ((float)Base::operator uint32_t()) / 2147483647.0f; }
     };
 
     static LinearCongruentialGenerator<uint64_t> randomUint64Helper;

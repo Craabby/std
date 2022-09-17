@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std/cstddef.hh>
+#include <cstddef>
 #include <std/memory.hh>
 #include <std/cassert.hh>
 #include <std/move.hh>
@@ -17,7 +17,7 @@ namespace std2
 
         inline void Grow()
         {
-            SetCapacity(m_Capacity << 1);
+            SetCapacity(m_Capacity * 3); // will be optimized to (m_Capacity << 1) + m_Capacity
         }
 
         inline void SetCapacity(size_t size)
@@ -43,7 +43,8 @@ namespace std2
         {
             *this = Move(other);
         }
-        inline Vector(size_t size, T const &value = T())
+        // clone if it is number, otherwise const & it
+        inline Vector(size_t size, typename Conditional<IsNumber<T>::value, T, T const &>::type value = T())
         {
             m_Data = (T *)::operator new(size * sizeof(T));
             m_Capacity = size;
@@ -92,7 +93,7 @@ namespace std2
                 SetCapacity(size);
         }
 
-        inline void Resize(size_t size, T const &v = T())
+        inline void Resize(size_t size, typename Conditional<IsNumber<T>::value, T, T const &>::type v = T())
         {
             Reserve(size);
             m_Size = size;
@@ -122,7 +123,7 @@ namespace std2
         inline T &Back() { return m_Data[m_Size - 1]; }
         inline T const &Back() const { return m_Data[m_Size - 1]; }
 
-        inline T const &Push(T const &value)
+        inline T const &Push(typename Conditional<IsNumber<T>::value, T, T const &>::type value)
         {
             if (m_Size == m_Capacity)
                 Grow();
@@ -132,22 +133,17 @@ namespace std2
             return value;
         }
 
-        inline T &Push(T &&value)
+        inline T const &Push(T &&x)
         {
-            if (m_Size == m_Capacity)
-                Grow();
-            new (&m_Data[m_Size]) T(Move(value));
-            m_Size++;
-
-            return value;
+            Emplace(Move(x));
         }
 
         template <typename... Arguments>
-        inline T &Emplace(Arguments &&...arguments)
+        inline T &Emplace(Arguments const &...arguments)
         {
             if (m_Size == m_Capacity)
                 Grow();
-            new (&m_Data[m_Size]) T(Forward<Arguments>(arguments)...);
+            new (&m_Data[m_Size]) T(arguments...);
             m_Size++;
             return m_Data[m_Size - 1];
         }
@@ -186,6 +182,12 @@ namespace std2
             else
                 for (size_t i = index; i < m_Size; i++)
                     m_Data[i - 1] = Move(m_Data[i]);
+        }
+
+        inline void Pop()
+        {
+            m_Size--;
+            m_Data[m_Size].~T();
         }
 
         inline T &operator[](size_t i)

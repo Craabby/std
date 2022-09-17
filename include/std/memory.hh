@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std/cstddef.hh>
+#include <cstddef>
 #include <std/move.hh>
 #ifdef STD2_SIMD
 #include <x86intrin.h>
